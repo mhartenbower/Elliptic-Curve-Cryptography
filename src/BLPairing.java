@@ -13,7 +13,11 @@ import it.unisa.dia.gas.plaf.jpbc.util.math.BigIntegerUtils;
 public class BLPairing {
 	public Pairing pairing;
 	public static Field zr, g1, gt;
-	public static Element pk_a, sk_a, isk_a, pk_b, sk_b, ownersk_a, g, k, g_k, z_k, e, rka_b;
+	public static Element pk_a, sk_a, isk_a, isk_b, pk_b, sk_b, ownersk_a, g, k, g_k, z_k, e, rka_b;
+	public static Element ciphertext;
+	public static Element c1, c2, reencrypt;
+	public static Element decrypt;
+	public static Element decrypt_user1;
 	
 	public void pairing(){
 		
@@ -21,16 +25,15 @@ public class BLPairing {
 		PairingParameters curveParams = PairingFactory.getPairingParameters("a_181_603.properties");
 		this.pairing = PairingFactory.getPairing(curveParams);
 		
-		//Initialize the parameters for first-level encryption
+		//Initialize the parameters for second-level encryption
 		g1 = pairing.getG1();
 	    gt = pairing.getGT();
 	    zr = pairing.getZr();
 	    g = g1.newRandomElement().getImmutable();
 		ElementPowPreProcessing gPre = g.getElementPowPreProcessing();
-
-	    k= zr.newRandomElement();
-	    g_k = gPre.powZn(k);
-		z_k = pairing.pairing(g, g_k);
+	    k= zr.newRandomElement().getImmutable();
+	    g_k = gPre.powZn(k).getImmutable();
+		z_k = pairing.pairing(g, g_k).getImmutable();
 					      
 		//Generate data owner keys
 		sk_a = pairing.getZr().newRandomElement().getImmutable(); //private key
@@ -40,6 +43,7 @@ public class BLPairing {
 		//Generate user keys (USER1)
 		sk_b = pairing.getZr().newRandomElement().getImmutable(); //private key
 		pk_b = gPre.powZn(sk_b).getImmutable();
+		isk_b = sk_b.invert().getImmutable();
 		
 		//Generate proxy re-encryption keys
 		rka_b = pk_b.powZn(isk_a).getImmutable();
@@ -48,8 +52,23 @@ public class BLPairing {
 		e = pairing.getGT().newRandomElement();
 		e.set(5);
 		
-		//Encrypt e
+		//Encrypt e using second level encryption
+		c1 = pk_a.powZn(k);
+		c2 = z_k.mul(e);
 		
+		/* Check to ensure encryption works - second level decryption
+		//Decrypt e
+		Element alpha = pairing.pairing(c1, g);
+		Element ialpha = alpha.powZn(isk_a);
+		decrypt = c2.div(ialpha);
+		*/
+		
+		//Re-Encryption
+		reencrypt = pairing.pairing(c1, rka_b);
+		
+		//Decrypt using first level decryption
+		Element ialpha = reencrypt.powZn(isk_b);
+		decrypt_user1 = c2.div(ialpha);
 	}
 	
 	
@@ -58,7 +77,6 @@ public class BLPairing {
 	public static void main(String[] args){
 		BLPairing pairing = new BLPairing();
 		pairing.pairing();
-		/*
 		System.out.println("------------------------");
 		System.out.print("Data Owner Public Key:");
 		System.out.println(pk_a);
@@ -74,8 +92,11 @@ public class BLPairing {
 		System.out.println("------------------------");
 		System.out.print("User1 Proxy Re-Encryption Key:");
 		System.out.println(rka_b);
-		*/
-		System.out.println(e);
+		System.out.println("Message being encrypted: " + e);
+		System.out.println("Cipher Text 1: " + c1);
+		System.out.println("Cipher Text 2: " + c2);
+		System.out.println("New C1: " + reencrypt);
+		System.out.println("Decrypt: " + decrypt_user1);
 	}
 
 }
