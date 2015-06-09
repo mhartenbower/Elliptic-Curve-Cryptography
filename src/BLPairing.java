@@ -44,9 +44,12 @@ public class BLPairing {
 		//Generate proxy re-encryption keys
 		rka_b = pk_b.powZn(isk_a).getImmutable();
 		
-		//Encrypt an integer
-		e = g1.newRandomElement();
-		//e.set(5);
+		//Set the value that we wish to encrypt
+		e = pairing.getGT().newRandomElement();
+		e.set(5);
+		
+		//Encrypt e
+		
 	}
 	
 	
@@ -55,6 +58,7 @@ public class BLPairing {
 	public static void main(String[] args){
 		BLPairing pairing = new BLPairing();
 		pairing.pairing();
+		/*
 		System.out.println("------------------------");
 		System.out.print("Data Owner Public Key:");
 		System.out.println(pk_a);
@@ -70,6 +74,8 @@ public class BLPairing {
 		System.out.println("------------------------");
 		System.out.print("User1 Proxy Re-Encryption Key:");
 		System.out.println(rka_b);
+		*/
+		System.out.println(e);
 	}
 
 }
