@@ -14,18 +14,17 @@ public class nBytes {
 	int blockSize;
 	File fout;
 	long numberofBlocks;
+	byte[] array;
 	
 	//Read a file n bytes at a time (to handle large files)
-	public byte[] readFile(int blockSize, File fout) throws IOException{
+	public byte[] readFile(int blockSize, File fout, int offset) throws IOException{
 		this.blockSize = blockSize; //specify the size of the file block (in bytes)
 		this.fout = fout;
-		byte[] array = new byte[blockSize];
+		array = new byte[blockSize];
 		InputStream in = new FileInputStream(this.fout);
-		in.read(array, 0, blockSize); //read 8 bytes into the array
+		in.read(array, offset, blockSize); //read 8 bytes into the array
 		in.close();
-		System.out.println("File read complete");
 		return array;
-		
 	}
 	
 	/*

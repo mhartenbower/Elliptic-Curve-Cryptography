@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
 
 import it.unisa.dia.gas.jpbc.Element;
 import it.unisa.dia.gas.jpbc.ElementPowPreProcessing;
@@ -21,10 +22,16 @@ public class BLPairing {
 	public static Element c1, c2, reencrypt;
 	public static Element decrypt;
 	public static Element decrypt_user1;
-	byte[] array;
+	public byte[] array;
+	public static ArrayList<Element> ciphertext1, ciphertext2, reencrypttext;
+	public static byte[] result;
+	public static int x;
+	public static String decoded;
 	
 	public void pairing() throws IOException{
-		
+		ciphertext1 = new ArrayList<Element>();
+		ciphertext2 = new ArrayList<Element>();
+		reencrypttext = new ArrayList<Element>();
 		//Get the curve parameters
 		PairingParameters curveParams = PairingFactory.getPairingParameters("a_181_603.properties");
 		this.pairing = PairingFactory.getPairing(curveParams);
@@ -60,25 +67,30 @@ public class BLPairing {
 		*/
 		
 		//Encrypt a file
-		e = pairing.getGT().newRandomElement();
+		e = gt.newRandomElement();
 		nBytes bytes = new nBytes();
 		File fout = new File("test.txt");
 		long length = fout.length();
-		int blockSize = 8;
+		int blockSize = 8; //this doesn't work if it's less than the size of the text file ***TOFIX***
 		long blocks = (long)Math.ceil((double)length/(double)blockSize);
+		System.out.println("Number of blocks :" + blocks);
+		int offset = 0;
 		for(int i = 0; i < blocks; i++){
 			array = new byte[blockSize];
-			array = bytes.readFile(blockSize, fout);
+			array = bytes.readFile(blockSize, fout, offset);
 			for(int j = 0; j < array.length; j++){ //print out the array
-				System.out.print(array[j]);
+				System.out.print(array[j] + " ");
 			}
 			System.out.println();
+			x = e.setFromBytes(array);
+			offset += blockSize;
 		}
-		e.setFromBytes(array);
 		
+		System.out.println("File read complete");
+
 		//Encrypt e using second level encryption
-		c1 = pk_a.powZn(k);
-		c2 = z_k.mul(e);
+		ciphertext1.add(pk_a.powZn(k));
+		ciphertext2.add(z_k.mul(e));
 		
 		/* Check to ensure encryption works - second level decryption
 		//Decrypt e
@@ -88,11 +100,15 @@ public class BLPairing {
 		*/
 		
 		//Re-Encryption
-		reencrypt = pairing.pairing(c1, rka_b);
+		reencrypttext.add(pairing.pairing(ciphertext1.get(0), rka_b));
 		
 		//Decrypt using first level decryption
-		Element ialpha = reencrypt.powZn(isk_b);
-		decrypt_user1 = c2.div(ialpha);
+		Element ialpha = reencrypttext.get(0).powZn(isk_b);
+		decrypt_user1 = ciphertext2.get(0).div(ialpha);
+		System.out.println("Length" +decrypt_user1.getLengthInBytes());
+		result = new byte[152];
+		result = decrypt_user1.toBytes();
+		decoded = new String(result, "UTF-8");
 	}
 	
 	
@@ -101,7 +117,7 @@ public class BLPairing {
 	public static void main(String[] args) throws IOException{
 		BLPairing pairing = new BLPairing();
 		pairing.pairing();
-		/*
+		
 		System.out.println("------------------------");
 		System.out.print("Data Owner Public Key:");
 		System.out.println(pk_a);
@@ -118,11 +134,15 @@ public class BLPairing {
 		System.out.print("User1 Proxy Re-Encryption Key:");
 		System.out.println(rka_b);
 		System.out.println("Message being encrypted: " + e);
-		System.out.println("Cipher Text 1: " + c1);
-		System.out.println("Cipher Text 2: " + c2);
-		System.out.println("New C1: " + reencrypt);
-		System.out.println("Decrypt: " + decrypt_user1);
-		*/
+		System.out.println("Cipher Text 1: " + ciphertext1.get(0));
+		System.out.println("Cipher Text 2: " + ciphertext2.get(0));
+		System.out.println("New C1: " + reencrypttext.get(0));
+		System.out.println("Number of bytes read: " + x);
+		//for(int i = 0; i < 152; i++){
+		//System.out.println("Line number: " + i + " " + result[i]);
+		//}
+		System.out.println(decoded);
+		
 	}
 
 }
