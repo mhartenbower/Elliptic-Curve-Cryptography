@@ -1,3 +1,6 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
 import java.math.BigInteger;
 
 import it.unisa.dia.gas.jpbc.Element;
@@ -19,7 +22,7 @@ public class BLPairing {
 	public static Element decrypt;
 	public static Element decrypt_user1;
 	
-	public void pairing(){
+	public void pairing() throws IOException{
 		
 		//Get the curve parameters
 		PairingParameters curveParams = PairingFactory.getPairingParameters("a_181_603.properties");
@@ -40,6 +43,7 @@ public class BLPairing {
 		pk_a = gPre.powZn(sk_a).getImmutable();
 		isk_a = sk_a.invert().getImmutable(); //invert the secret key to calculate the proxy re-encryption key
 		
+		
 		//Generate user keys (USER1)
 		sk_b = pairing.getZr().newRandomElement().getImmutable(); //private key
 		pk_b = gPre.powZn(sk_b).getImmutable();
@@ -48,9 +52,21 @@ public class BLPairing {
 		//Generate proxy re-encryption keys
 		rka_b = pk_b.powZn(isk_a).getImmutable();
 		
-		//Set the value that we wish to encrypt
+		/*
+		//Encrypt an integer
 		e = pairing.getGT().newRandomElement();
-		e.set(5);
+		e.set(100);
+		*/
+		
+		//Encrypt a file
+		e = pairing.getGT().newRandomElement();
+		nBytes bytes = new nBytes();
+		File fout = new File("test.txt");
+		long length = fout.length();
+		int blockSize = 8;
+		long blocks = (long)Math.ceil((double)length/(double)blockSize);
+		byte[] array = bytes.readFile(blockSize, fout, blocks);
+		e.setFromBytes(array);
 		
 		//Encrypt e using second level encryption
 		c1 = pk_a.powZn(k);
@@ -74,7 +90,7 @@ public class BLPairing {
 	
 	
 	
-	public static void main(String[] args){
+	public static void main(String[] args) throws IOException{
 		BLPairing pairing = new BLPairing();
 		pairing.pairing();
 		System.out.println("------------------------");
