@@ -16,20 +16,16 @@ public class nBytes {
 	long numberofBlocks;
 	
 	//Read a file n bytes at a time (to handle large files)
-	public byte[] readFile(int blockSize, File fout, long numberofBlocks) throws IOException{
+	public byte[] readFile(int blockSize, File fout) throws IOException{
 		this.blockSize = blockSize; //specify the size of the file block (in bytes)
 		this.fout = fout;
-		this.numberofBlocks = numberofBlocks;
 		byte[] array = new byte[blockSize];
-		String[] result = new String[blockSize]; //to convert ascii back to string
 		InputStream in = new FileInputStream(this.fout);
-		for(int i = 0; i < numberofBlocks; i++){ //keep reading until each block is read
-			in.read(array, 0, blockSize); //read 8 bytes into the array
-			array = new byte[8];
-		}
+		in.read(array, 0, blockSize); //read 8 bytes into the array
 		in.close();
 		System.out.println("File read complete");
 		return array;
+		
 	}
 	
 	/*
@@ -40,12 +36,6 @@ public class nBytes {
 		bw.close();
 	}
 	*/
-	
-	public static void main(String[] args) throws IOException{
-		nBytes rf = new nBytes();
-		rf.readFile(8,"test.txt");
-		
-	}
 	
 }
 

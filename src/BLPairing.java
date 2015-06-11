@@ -21,6 +21,7 @@ public class BLPairing {
 	public static Element c1, c2, reencrypt;
 	public static Element decrypt;
 	public static Element decrypt_user1;
+	byte[] array;
 	
 	public void pairing() throws IOException{
 		
@@ -65,7 +66,14 @@ public class BLPairing {
 		long length = fout.length();
 		int blockSize = 8;
 		long blocks = (long)Math.ceil((double)length/(double)blockSize);
-		byte[] array = bytes.readFile(blockSize, fout, blocks);
+		for(int i = 0; i < blocks; i++){
+			array = new byte[blockSize];
+			array = bytes.readFile(blockSize, fout);
+			for(int j = 0; j < array.length; j++){ //print out the array
+				System.out.print(array[j]);
+			}
+			System.out.println();
+		}
 		e.setFromBytes(array);
 		
 		//Encrypt e using second level encryption
@@ -93,6 +101,7 @@ public class BLPairing {
 	public static void main(String[] args) throws IOException{
 		BLPairing pairing = new BLPairing();
 		pairing.pairing();
+		/*
 		System.out.println("------------------------");
 		System.out.print("Data Owner Public Key:");
 		System.out.println(pk_a);
@@ -113,6 +122,7 @@ public class BLPairing {
 		System.out.println("Cipher Text 2: " + c2);
 		System.out.println("New C1: " + reencrypt);
 		System.out.println("Decrypt: " + decrypt_user1);
+		*/
 	}
 
 }
