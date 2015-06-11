@@ -28,11 +28,12 @@ public class BLPairing {
 	public static ArrayList<Element> ciphertext1, ciphertext2, reencrypttext;
 	public static byte[] result;
 	public static int x;
-	public static String decoded;
+	public static ArrayList<String> decoded;
 	
 	public void pairing() throws IOException{
 		ciphertext1 = new ArrayList<Element>();
 		ciphertext2 = new ArrayList<Element>();
+		decoded = new ArrayList<String>();
 		reencrypttext = new ArrayList<Element>();
 		//Get the curve parameters
 		PairingParameters curveParams = PairingFactory.getPairingParameters("a_181_603.properties");
@@ -71,31 +72,49 @@ public class BLPairing {
 		//Encrypt a file
 		e = gt.newRandomElement();
 		nBytes bytes = new nBytes();
-		File fout = new File("test.txt");
+		File fout = new File("data10.txt");
 		long length = fout.length();
 		int blockSize = 8; //this doesn't work if it's less than the size of the text file ***TOFIX***
 		long blocks = (long)Math.ceil((double)length/(double)blockSize);
 		System.out.println("Number of blocks :" + blocks);
-		int offset = 0;
 		InputStream in = new FileInputStream(fout);
 		for(int i = 0; i < blocks; i++){
 			array = new byte[blockSize];
-			array = bytes.readFile(blockSize, in, offset);
-			for(int j = 0; j < array.length; j++){ //print out the array
-				System.out.print(array[j] + " ");
-			}
+			array = bytes.readFile(blockSize, in);
+			//for(int j = 0; j < array.length; j++){ //print out the array
+				//System.out.print(array[j] + " ");
+			//}
 			System.out.println();
-			x = e.setFromBytes(array);
-			offset += blockSize;
+			e.setFromBytes(array);
+			
+			//Enecrypt e using second level encryption
+			c1 = pk_a.powZn(k);
+			c2 = z_k.mul(e);
+			//ciphertext1.add(pk_a.powZn(k));
+			//ciphertext2.add(z_k.mul(e));
+			
+			//Re-Encryption
+			//for(int j = 0; j < ciphertext1.size(); j++){
+				reencrypt = pairing.pairing(c1, rka_b);
+				//reencrypttext.add(pairing.pairing(ciphertext1.get(i), rka_b));
+			//}
+			
+			//Decrypt using first level decryption
+			//decoded = new ArrayList<String>();
+			//for(int i = 0; i < ciphertext1.size(); i++){
+				Element ialpha = reencrypt.powZn(isk_b);
+				decrypt_user1 = c2.div(ialpha);
+				//System.out.println("Length" +decrypt_user1.getLengthInBytes());
+				result = new byte[decrypt_user1.getLengthInBytes()];
+				result = decrypt_user1.toBytes();
+				bytes.writeFile(new String(result, "UTF-8"));
+			//}
+			
 		}
 		in.close();
 		
-		System.out.println("File read complete");
-
-		//Encrypt e using second level encryption
-		ciphertext1.add(pk_a.powZn(k));
-		ciphertext2.add(z_k.mul(e));
-		
+		System.out.println("Complete");
+				
 		/* Check to ensure encryption works - second level decryption
 		//Decrypt e
 		Element alpha = pairing.pairing(c1, g);
@@ -103,20 +122,8 @@ public class BLPairing {
 		decrypt = c2.div(ialpha);
 		*/
 		
-		//Re-Encryption
-		reencrypttext.add(pairing.pairing(ciphertext1.get(0), rka_b));
 		
-		//Decrypt using first level decryption
-		Element ialpha = reencrypttext.get(0).powZn(isk_b);
-		decrypt_user1 = ciphertext2.get(0).div(ialpha);
-		System.out.println("Length" +decrypt_user1.getLengthInBytes());
-		result = new byte[152];
-		result = decrypt_user1.toBytes();
-		decoded = new String(result, "UTF-8");
 	}
-	
-	
-	
 	
 	public static void main(String[] args) throws IOException{
 		BLPairing pairing = new BLPairing();
@@ -138,14 +145,17 @@ public class BLPairing {
 		System.out.print("User1 Proxy Re-Encryption Key:");
 		System.out.println(rka_b);
 		System.out.println("Message being encrypted: " + e);
-		System.out.println("Cipher Text 1: " + ciphertext1.get(0));
-		System.out.println("Cipher Text 2: " + ciphertext2.get(0));
-		System.out.println("New C1: " + reencrypttext.get(0));
+		//System.out.println("Cipher Text 1: " + ciphertext1.get(0));
+		//System.out.println("Cipher Text 2: " + ciphertext2.get(0));
+		//System.out.println("New C1: " + reencrypttext.get(0));
 		System.out.println("Number of bytes read: " + x);
 		//for(int i = 0; i < 152; i++){
 		//System.out.println("Line number: " + i + " " + result[i]);
 		//}
-		System.out.println(decoded);
+		for(int i = 0; i < decoded.size(); i++){
+			System.out.print(decoded.get(i));
+		}
+		//System.out.println("decoded: " + decoded); //MUST CHANGE THIS TO MATCH ORIGINAL FILE
 		
 	}
 

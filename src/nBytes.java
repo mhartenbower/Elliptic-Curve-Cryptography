@@ -18,7 +18,7 @@ public class nBytes {
 	InputStream in;
 	
 	//Read a file n bytes at a time (to handle large files)
-	public byte[] readFile(int blockSize, InputStream in, int offset) throws IOException{
+	public byte[] readFile(int blockSize, InputStream in) throws IOException{
 		this.blockSize = blockSize; //specify the size of the file block (in bytes)
 		this.in = in;
 		array = new byte[blockSize];
@@ -26,14 +26,13 @@ public class nBytes {
 		return array;
 	}
 	
-	/*
+	
 	public void writeFile(String line) throws IOException{
-		File fout = new File("encrypted.txt");
+		File fout = new File("decrypted.txt");
 		BufferedWriter bw = new BufferedWriter(new FileWriter(fout,true));
 		bw.write(line);
 		bw.close();
 	}
-	*/
 	
 }
 
