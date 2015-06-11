@@ -20,6 +20,7 @@ public class nBytes {
 		long length = file.length();
 		long blocks = (long)Math.ceil(length/blockSize);
 		byte[] array = new byte[8];
+		String[] result = new String[8];
 		InputStream in = new FileInputStream(file);
 		int offset = 0;
 		for(int i = 0; i < blocks; i++){
@@ -28,6 +29,10 @@ public class nBytes {
 				System.out.print(array[j] + " " );
 			}
 			System.out.println();
+			for(int k = 0; k < array.length; k++){
+				result[k] = Character.toString((char)array[k]);
+				System.out.print(result[k] + " ");
+			}
 		}
 		in.close();
 		
