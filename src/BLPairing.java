@@ -1,6 +1,8 @@
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 
@@ -75,9 +77,10 @@ public class BLPairing {
 		long blocks = (long)Math.ceil((double)length/(double)blockSize);
 		System.out.println("Number of blocks :" + blocks);
 		int offset = 0;
+		InputStream in = new FileInputStream(fout);
 		for(int i = 0; i < blocks; i++){
 			array = new byte[blockSize];
-			array = bytes.readFile(blockSize, fout, offset);
+			array = bytes.readFile(blockSize, in, offset);
 			for(int j = 0; j < array.length; j++){ //print out the array
 				System.out.print(array[j] + " ");
 			}
@@ -85,6 +88,7 @@ public class BLPairing {
 			x = e.setFromBytes(array);
 			offset += blockSize;
 		}
+		in.close();
 		
 		System.out.println("File read complete");
 

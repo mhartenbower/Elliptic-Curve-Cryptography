@@ -15,15 +15,14 @@ public class nBytes {
 	File fout;
 	long numberofBlocks;
 	byte[] array;
+	InputStream in;
 	
 	//Read a file n bytes at a time (to handle large files)
-	public byte[] readFile(int blockSize, File fout, int offset) throws IOException{
+	public byte[] readFile(int blockSize, InputStream in, int offset) throws IOException{
 		this.blockSize = blockSize; //specify the size of the file block (in bytes)
-		this.fout = fout;
+		this.in = in;
 		array = new byte[blockSize];
-		InputStream in = new FileInputStream(this.fout);
-		in.read(array, offset, blockSize); //read 8 bytes into the array
-		in.close();
+		this.in.read(array, 0, blockSize); //read 8 bytes into the array
 		return array;
 	}
 	
