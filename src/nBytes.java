@@ -16,6 +16,7 @@ public class nBytes {
 	long numberofBlocks;
 	byte[] array;
 	InputStream in;
+	BufferedWriter bw;
 	
 	//Read a file n bytes at a time (to handle large files)
 	public byte[] readFile(int blockSize, InputStream in) throws IOException{
@@ -27,11 +28,9 @@ public class nBytes {
 	}
 	
 	
-	public void writeFile(String line) throws IOException{
-		File fout = new File("decrypted.txt");
-		BufferedWriter bw = new BufferedWriter(new FileWriter(fout,true));
-		bw.write(line);
-		bw.close();
+	public void writeFile(String line, BufferedWriter bw) throws IOException{
+		this.bw = bw;
+		this.bw.write(line);
 	}
 	
 }

@@ -1,6 +1,8 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -29,6 +31,7 @@ public class BLPairing {
 	public static byte[] result;
 	public static int x;
 	public static ArrayList<String> decoded;
+	BufferedWriter bw;
 	
 	public void pairing() throws IOException{
 		ciphertext1 = new ArrayList<Element>();
@@ -69,31 +72,32 @@ public class BLPairing {
 		e.set(100);
 		*/
 		
-		//Encrypt a file
+		//Encrypt a specified file
 		e = gt.newRandomElement();
 		nBytes bytes = new nBytes();
-		File fout = new File("data10.txt");
-		long length = fout.length();
-		int blockSize = 8; //this doesn't work if it's less than the size of the text file ***TOFIX***
+		File fin = new File("test.txt");
+		File fout = new File("decrypted.txt");
+		bw = new BufferedWriter(new FileWriter(fout, true));
+		long length = fin.length();
+		int blockSize = 8;
 		long blocks = (long)Math.ceil((double)length/(double)blockSize);
 		System.out.println("Number of blocks :" + blocks);
-		InputStream in = new FileInputStream(fout);
+		InputStream in = new FileInputStream(fin);
+		System.out.println("Encrypted File: ");
 		for(int i = 0; i < blocks; i++){
 			array = new byte[blockSize];
 			array = bytes.readFile(blockSize, in);
-			//for(int j = 0; j < array.length; j++){ //print out the array
-				//System.out.print(array[j] + " ");
-			//}
-			System.out.println();
+			for(int j = 0; j < blockSize; j++){
+				System.out.print(array[j]);
+			}
 			e.setFromBytes(array);
 			
-			//Enecrypt e using second level encryption
+			//Encrypt e using second level encryption
 			c1 = pk_a.powZn(k);
 			c2 = z_k.mul(e);
 			//ciphertext1.add(pk_a.powZn(k));
 			//ciphertext2.add(z_k.mul(e));
 			
-			//Re-Encryption
 			//for(int j = 0; j < ciphertext1.size(); j++){
 				reencrypt = pairing.pairing(c1, rka_b);
 				//reencrypttext.add(pairing.pairing(ciphertext1.get(i), rka_b));
@@ -107,12 +111,13 @@ public class BLPairing {
 				//System.out.println("Length" +decrypt_user1.getLengthInBytes());
 				result = new byte[decrypt_user1.getLengthInBytes()];
 				result = decrypt_user1.toBytes();
-				bytes.writeFile(new String(result, "UTF-8"));
+				bytes.writeFile(new String(result, "UTF-8"), bw);
 			//}
 			
 		}
 		in.close();
-		
+		bw.close();
+		System.out.println();
 		System.out.println("Complete");
 				
 		/* Check to ensure encryption works - second level decryption
