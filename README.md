@@ -5,9 +5,11 @@ Currently working:<br>
 -Data owner and user key generation<br>
 -Proxy re-encryption key generation<br>
 -Proxy re-encryption of integer by oracle and decryption by user<br>
+-File encryption (Still some potential bugs to work out)<br>
 
 To do list:<br>
--File encryption<br>
+-Add support for multithreading
 -Authorization token generation
+-Clean code, seperate classes, and add better commenting
 
 Library used: http://gas.dia.unisa.it/projects/jpbc/#.VXdHUFxViko
