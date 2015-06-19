@@ -8,8 +8,8 @@ Currently working:<br>
 -File encryption (Still some potential bugs to work out)<br>
 
 To do list:<br>
--Add support for multithreading
--Authorization token generation
+-Add support for multithreading<br>
+-Authorization token generation<br>
 -Clean code, seperate classes, and add better commenting
 
 Library used: http://gas.dia.unisa.it/projects/jpbc/#.VXdHUFxViko
