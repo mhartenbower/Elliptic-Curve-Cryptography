@@ -1,5 +1,5 @@
-# Bilinear-Pairing
-Pair based cryptography implementation of a secure data sharing framework using the JPBC 2.0.0 library. I am working on this project for my summer 2015 REU at Missouri University of Science and Technology.
+# Elliptic-Curve-Cryptography
+Pair based cryptography implementation of a secure data sharing framework using the JPBC 2.0.0 library. I am working on this project for my summer 2015 REU at Missouri University of Science and Technology. This repository is no longer used. Future work will be committed to: https://github.com/MSTSummerResearchProgram15/Secure-Data-Sharing and https://github.com/MSTSummerResearchProgram15/MultiThread-Elliptic-Curve-Cryptography.
 
 Currently working:<br>
 -Data owner and user key generation<br>
